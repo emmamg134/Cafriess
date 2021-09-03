@@ -1,4 +1,4 @@
-# window.py
+# app.py
 #
 # Copyright 2021 Emmanuel Martín González
 #
