@@ -16,19 +16,26 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import gi
-from math import pi
+from math import pi, tau, e
 
 gi.require_version("Gtk", "3.0")
 from gi.repository import Gtk
 
-Ans = 0
+TIMES_CHAR = "\u00d7"
+DIVIDED_BY_CHAR = "\u00f7"
+TAU_CHAR = "\u03c4"
+PI_CHAR = "\u03c0"
 
-class MyWindow(Gtk.Window):
+OPERATORS = (TIMES_CHAR, DIVIDED_BY_CHAR, '+', '-', '^')
+
+Ans = 0
+class MainWindow(Gtk.Window):
     calc_box = [
-        ["7", "8", "9", "DEL", "AC"],
-        ["4", "5", "6", "\u00d7", "\u00f7"],
+        [TAU_CHAR, "e", "(", ")", "AC"],
+        ["7", "8", "9", "^", "DEL"],
+        ["4", "5", "6", TIMES_CHAR, DIVIDED_BY_CHAR],
         ["1", "2", "3", "+", "-"],
-        ["0", ".", "\u03c0" ,"Ans", "="]
+        ["0", ".", PI_CHAR, "Ans", "="]
     ]
 
     def __init__(self):
@@ -66,25 +73,27 @@ class MyWindow(Gtk.Window):
             self.entry.set_text("")
         elif label == "=":
             global Ans
-            x = 0
-            x = Ans # The eval() method don´t recognice Ans as a variable.
-            for item in text_entered:
-                if item == "\u00d7":
-                    text_entered = text_entered.replace("\u00d7", "*")
-                elif item == "\u00f7":
-                   text_entered = text_entered.replace("\u00f7", "/")
-                elif item == "\u03c0":
-                    text_entered = text_entered.replace("\u03c0", "pi")
+            text_entered = text_entered.replace(TIMES_CHAR, "*")
+            text_entered = text_entered.replace(DIVIDED_BY_CHAR, "/")
+            text_entered = text_entered.replace(PI_CHAR, "pi")
+            text_entered = text_entered.replace(TAU_CHAR, "tau")
+            text_entered = text_entered.replace("^", "**")
             try:
                self.entry.set_text(str(eval(text_entered))) #The eval() method returns the result evaluated from the expression.
                Ans = eval(text_entered)
             except (SyntaxError, NameError):
                 self.entry.set_text("The entered values are not valid")
         else:
+            if label in OPERATORS and text_entered[-1] in OPERATORS:
+                text_entered = text_entered[:-1]
+            elif len(text_entered) > 0 and\
+                    label in (PI_CHAR, TAU_CHAR, "e", "Ans") and\
+                    text_entered[-1] not in OPERATORS:
+                text_entered += TIMES_CHAR
             text_entered += label
             self.entry.set_text(text_entered)
 
-win = MyWindow()
+win = MainWindow()
 win.connect("destroy", Gtk.main_quit)
 win.show_all()
 Gtk.main()
